@@ -4,10 +4,14 @@ import random
 
 from meme_engine.meme_engine import MemeEngine
 from quote_engine import Ingestor, QuoteModel
+from quote_engine.utils import check_and_create_dirs
 
 
 def generate_meme(path=None, body=None, author=None):
     """Generate a meme given an path and a quote"""
+
+    # Check to see whether the directories exist, if not, create them
+    check_and_create_dirs()
 
     if path is None:
         images = "./_data/photos/dog/"

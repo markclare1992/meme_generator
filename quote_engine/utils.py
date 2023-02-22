@@ -40,3 +40,17 @@ def get_quote_list_from_text_file(path: str, delete_file: bool = False) -> List[
             print(f"Exception: {e}. Failed to delete file: {path}")
 
     return quotes
+
+
+def check_and_create_dirs():
+    """
+    Create the required directories if they don't exist.
+
+    The directories are:
+    - ./_data/tmp
+    - ./static/
+    """
+    dirs = ["./_data/tmp", "./static/"]
+    for d in dirs:
+        if not os.path.exists(d):
+            os.makedirs(d)

@@ -6,6 +6,7 @@ from flask import Flask, abort, render_template, request
 
 from meme_engine.meme_engine import MemeEngine
 from quote_engine import Ingestor
+from quote_engine.utils import check_and_create_dirs
 
 app = Flask(__name__)
 
@@ -33,6 +34,7 @@ def setup():
     return quotes, imgs
 
 
+check_and_create_dirs()
 quotes, imgs = setup()
 
 
