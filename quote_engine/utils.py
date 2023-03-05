@@ -5,9 +5,8 @@ from typing import Any, List
 from .quote_model import QuoteModel
 
 
-def get_quote_list_from_text_file(
-        path: str,
-        delete_file: bool = False) -> List[Any]:
+def get_quote_list_from_text_file(path: str, delete_file: bool = False) \
+        -> List[Any]:
     """
     Parse the text file and return a list of QuoteModel objects.
 

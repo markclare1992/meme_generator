@@ -9,38 +9,60 @@ from PIL import Image, ImageDraw, ImageFont
 
 def caption_image(author, draw, new_height, new_width, text):
     """Add text to the image."""
-    try:
-        font_body = ImageFont.truetype("Chalkduster.ttf", size=20)
-        font_author = ImageFont.truetype("Chalkduster.ttf", size=30)
-        text_lines = textwrap.wrap(text, width=20)
-        text_width, text_height = font_body.getsize(text)
-        # select random location for text to go
-        text_location_x = random.randint(0, new_width)
-        text_location_y = random.randint(0, new_height)
-        if text_location_x + text_width > new_width:
-            text_location_x = new_width - text_width
-        if text_location_y + text_height > new_height:
-            text_location_y = new_height - text_height
-        for line in text_lines:
-            draw.text(
-                (text_location_x, text_location_y),
-                line,
-                fill="white",
-                font=font_body,
-                align="center",
-            )
-            text_location_y += text_height
-        draw.text(
-            (text_location_x, text_location_y),
-            author,
-            fill="white",
-            font=font_author,
-            align="center",
-        )
+    body_font_size = 20
+    author_font_size = 36
+    body_font = ImageFont.truetype("Chalkduster.ttf", body_font_size)
+    author_font = ImageFont.truetype("Chalkduster.ttf", author_font_size)
 
-    except Exception as e:
-        print(e)
-        return None
+    # Get size of text with initial font sizes
+    body_width, body_height = draw.multiline_textsize(text, font=body_font)
+    author_width, author_height = draw.multiline_textsize(author,
+                                                          font=author_font)
+
+    # Determine font size that fits text within image bounds
+    body_font_size = int(body_font_size * (new_width / body_width) * 0.9)
+    author_font_size = int(author_font_size * (new_width / author_width) * 0.9)
+    body_font = ImageFont.truetype("Chalkduster.ttf", body_font_size)
+    author_font = ImageFont.truetype("Chalkduster.ttf", author_font_size)
+
+    # Wrap text with new font sizes
+    body_lines = textwrap.wrap(text, width=new_width//5)
+    author_lines = textwrap.wrap(author, width=new_width//5)
+
+    # Get size of text with new font sizes
+    body_width, body_height = draw.multiline_textsize(text, font=body_font)
+    author_width, author_height = draw.multiline_textsize(author,
+                                                          font=author_font)
+
+    # Randomize starting position for body text
+    body_x = random.randint(0, new_width - body_width)
+    body_y = random.randint(0, new_height - body_height)
+
+    # Adjust starting position if body text is outside of image bounds
+    if body_x + body_width > new_width:
+        body_x = new_width - body_width
+    if body_y + body_height > new_height:
+        body_y = new_height - body_height
+
+    # Set starting position for author text
+    author_x = body_x
+    author_y = body_y + body_height + 10
+
+    # Adjust starting position if author text is outside of image bounds
+    if author_y + author_height > new_height:
+        author_y = body_y - author_height - 10
+
+    # Draw body text
+    for line in body_lines:
+        draw.text((body_x, body_y), line, font=body_font,
+                  fill=(255, 255, 255))
+        body_y += body_font.getsize(line)[1]
+
+    # Draw author text
+    for line in author_lines:
+        draw.text((author_x, author_y), line, font=author_font,
+                  fill=(255, 255, 255))
+        author_y += author_font.getsize(line)[1]
 
 
 class MemeEngine:
@@ -59,6 +81,7 @@ class MemeEngine:
     ) -> Optional[str]:
         """Create a meme given an image path and a quote body and author."""
         try:
+            author = f"Author - {author}"
             img = Image.open(img_path)
             new_width = width
             new_height = int(width * img.height / img.width)
