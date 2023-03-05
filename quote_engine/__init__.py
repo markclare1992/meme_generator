@@ -1,3 +1,4 @@
+"""This module contains the QuoteModel and Ingestor classes."""
 from .csv_ingestor import CSVIngestor
 from .docx_ingestor import DocxIngestor
 from .ingestor import Ingestor

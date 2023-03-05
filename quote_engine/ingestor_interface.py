@@ -1,11 +1,10 @@
+"""Abstract class for ingestors."""
 from abc import ABC, abstractmethod
 from typing import Any, List
 
 
 class IngestorInterface(ABC):
-    """
-    Abstract class for ingestors.
-    """
+    """Abstract class for ingestors."""
 
     allowed_extensions: List[str] = []
 

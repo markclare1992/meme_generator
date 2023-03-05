@@ -1,13 +1,15 @@
+"""This module contains utility functions for the quote engine."""
 import os
 from typing import Any, List
 
 from .quote_model import QuoteModel
 
 
-def get_quote_list_from_text_file(path: str, delete_file: bool = False) -> List[Any]:
+def get_quote_list_from_text_file(
+        path: str,
+        delete_file: bool = False) -> List[Any]:
     """
     Parse the text file and return a list of QuoteModel objects.
-    If delete_file is True, the file will be deleted after parsing.
 
     :param path: Path to the file.
     :param delete_file: If True, the file will be deleted after parsing.

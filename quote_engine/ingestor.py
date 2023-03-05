@@ -1,3 +1,4 @@
+"""Ingestor class to parse the file and return a list of QuoteModel objects."""
 from typing import Any, List
 
 from .csv_ingestor import CSVIngestor

@@ -1,3 +1,4 @@
+"""PDF ingestor class to parse the .pdf files using xpdf & subprocesses."""
 import random
 import subprocess
 from typing import Any, List
@@ -7,9 +8,7 @@ from .utils import get_quote_list_from_text_file
 
 
 class PDFIngestor(IngestorInterface):
-    """
-    PDF ingestor class to parse the .pdf files using xpdf & subprocesses and return a list of QuoteModel objects.
-    """
+    """PDF ingestor class to parse the .pdf files using xpdf & subprocesses."""
 
     allowed_extensions = ["pdf"]
 
@@ -22,7 +21,8 @@ class PDFIngestor(IngestorInterface):
 
         :return: List of QuoteModel objects.
         """
-        # Should never reach below, as can_ingest should have been called first. But just in case.
+        # Should never reach below, as can_ingest should have been called
+        # first. But just in case.
         if not cls.can_ingest(path):
             raise Exception("Ingestion failed.")
 

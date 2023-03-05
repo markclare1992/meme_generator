@@ -30,6 +30,8 @@ flake8 = "*"
 pylint = "*"
 mypy = "*"
 pytest = "*"
+pycodestyle = "^2.10.0"
+pydocstyle = "^6.3.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

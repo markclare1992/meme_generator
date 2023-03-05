@@ -1,8 +1,9 @@
+"""This module is the main entry point of the application."""
 import os
 import random
 
 import requests
-from flask import Flask, abort, render_template, request
+from flask import Flask, render_template, request
 
 from meme_engine.meme_engine import MemeEngine
 from quote_engine import Ingestor
@@ -15,8 +16,7 @@ ingestor = Ingestor()
 
 
 def setup():
-    """Load all resources"""
-
+    """Load all resources."""
     quote_files = [
         "./_data/DogQuotes/DogQuotesTXT.txt",
         "./_data/DogQuotes/DogQuotesDOCX.docx",
@@ -40,7 +40,7 @@ quotes, imgs = setup()
 
 @app.route("/")
 def meme_rand():
-    """Generate a random meme"""
+    """Generate a random meme."""
     img = imgs[random.randint(0, len(imgs) - 1)]
     quote = quotes[random.randint(0, len(quotes) - 1)]
     path = meme.make_meme(img, quote.body, quote.author)
@@ -49,30 +49,32 @@ def meme_rand():
 
 @app.route("/create", methods=["GET"])
 def meme_form():
-    """User input for meme information"""
+    """User input for meme information."""
     return render_template("meme_form.html")
 
 
 @app.route("/create", methods=["POST"])
 def meme_post():
-    """Create a user defined meme"""
-    image_url = request.form.get("image_url")
-    if image_url is None:
-        abort(400)
+    """Create a user defined meme."""
+    try:
+        image_url = request.form.get("image_url")
+        response = requests.get(image_url, stream=True)
+        temp_file = os.path.join("_data/tmp", os.path.basename(image_url))
+        with open(temp_file, "wb") as out_file:
+            out_file.write(response.content)
 
-    response = requests.get(image_url, stream=True)
-    if response.status_code != 200:
-        abort(400)
+        body = request.form.get("body")
+        author = request.form.get("author")
+        path = meme.make_meme(temp_file, body, author)
 
-    temp_file = os.path.join("_data/tmp", os.path.basename(image_url))
-    with open(temp_file, "wb") as out_file:
-        out_file.write(response.content)
+        os.remove(temp_file)
 
-    body = request.form.get("body")
-    author = request.form.get("author")
-    path = meme.make_meme(temp_file, body, author)
-
-    os.remove(temp_file)
+    except requests.exceptions.ConnectionError:
+        print("<Enter user friendly error message>")
+        return render_template("meme_error.html")
+    except Exception as e:
+        print(f"Exception: {e}")
+        return render_template("meme_error.html")
 
     return render_template("meme.html", path=path)
 

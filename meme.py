@@ -1,3 +1,5 @@
+"""Program to generate a meme given an image and a quote."""
+
 import argparse
 import os
 import random
@@ -8,8 +10,7 @@ from quote_engine.utils import check_and_create_dirs
 
 
 def generate_meme(path=None, body=None, author=None):
-    """Generate a meme given an path and a quote"""
-
+    """Generate a meme given an path and a quote."""
     # Check to see whether the directories exist, if not, create them
     check_and_create_dirs()
 
@@ -47,8 +48,11 @@ def generate_meme(path=None, body=None, author=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--path", type=str, nargs=1, help="Path to an image file")
-    parser.add_argument("--body", type=str, nargs=1, help="Body to add to the image")
+    parser.add_argument("--path", type=str,
+                        nargs=1,
+                        help="Path to an image file")
+    parser.add_argument("--body", type=str,
+                        nargs=1, help="Body to add to the image")
     parser.add_argument(
         "--author", type=str, nargs=1, help="Author to add to the image"
     )

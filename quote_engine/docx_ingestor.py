@@ -1,3 +1,4 @@
+"""Docx ingestor class to parse the .docx files."""
 from typing import Any, List
 
 from docx import Document
@@ -7,11 +8,15 @@ from .quote_model import QuoteModel
 
 
 class DocxIngestor(IngestorInterface):
+    """Docx ingestor class to parse the .docx files."""
+
     allowed_extensions = ["docx"]
 
     @classmethod
     def parse(cls, path) -> List[Any]:
-        # Should never reach below, as can_ingest should have been called first. But just in case.
+        """Parse the docx file and return a list of QuoteModel objects."""
+        # Should never reach below, as can_ingest should have been called
+        # first. But just in case.
         if not cls.can_ingest(path):
             raise Exception("Ingestion failed.")
 
@@ -21,7 +26,8 @@ class DocxIngestor(IngestorInterface):
             for para in doc.paragraphs:
                 if para.text != "":
                     parse = para.text.split(" - ")
-                    # Check that parse has 2 elements, and that both elements are not empty.
+                    # Check that parse has 2 elements, and that both
+                    # elements are not empty.
                     if len(parse) == 2 and parse[0] != "" and parse[1] != "":
                         body = parse[0].strip().strip('"')
                         author = parse[1].strip().strip('"')

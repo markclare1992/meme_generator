@@ -1,3 +1,4 @@
+"""CSV ingestor class to parse the .csv files."""
 from typing import Any, List
 
 import pandas as pd
@@ -7,9 +8,7 @@ from .quote_model import QuoteModel
 
 
 class CSVIngestor(IngestorInterface):
-    """
-    CSV ingestor class to parse the .csv files and return a list of QuoteModel objects.
-    """
+    """CSV ingestor class to parse the .csv files."""
 
     allowed_extensions = ["csv"]
 
@@ -22,7 +21,8 @@ class CSVIngestor(IngestorInterface):
 
         :return: List of QuoteModel objects.
         """
-        # Should never reach below, as can_ingest should have been called first. But just in case.
+        # Should never reach below, as can_ingest should have been called
+        # first. But just in case.
         if not cls.can_ingest(path):
             raise Exception("Ingestion failed.")
 
