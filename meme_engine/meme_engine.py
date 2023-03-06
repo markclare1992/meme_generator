@@ -7,62 +7,76 @@ from typing import Optional
 from PIL import Image, ImageDraw, ImageFont
 
 
-def caption_image(author, draw, new_height, new_width, text):
-    """Add text to the image."""
-    body_font_size = 20
-    author_font_size = 36
-    body_font = ImageFont.truetype("Chalkduster.ttf", body_font_size)
-    author_font = ImageFont.truetype("Chalkduster.ttf", author_font_size)
+def _text_wrap(text, font, max_width):
+    """
+    Wrap text based on specified width.
 
-    # Get size of text with initial font sizes
-    body_width, body_height = draw.multiline_textsize(text, font=body_font)
-    author_width, author_height = draw.multiline_textsize(author,
-                                                          font=author_font)
+    Args:
+        text: Text to wrap.
+        font: PIL ImageFont object.
+        max_width: Maximum width of the text.
 
-    # Determine font size that fits text within image bounds
-    body_font_size = int(body_font_size * (new_width / body_width) * 0.9)
-    author_font_size = int(author_font_size * (new_width / author_width) * 0.9)
-    body_font = ImageFont.truetype("Chalkduster.ttf", body_font_size)
-    author_font = ImageFont.truetype("Chalkduster.ttf", author_font_size)
+    Returns:
+        A list of lines that contain the wrapped text.
+    """
+    lines = textwrap.wrap(text, width=max_width // font.getsize('x')[0])
+    return lines
 
-    # Wrap text with new font sizes
-    body_lines = textwrap.wrap(text, width=new_width//5)
-    author_lines = textwrap.wrap(author, width=new_width//5)
 
-    # Get size of text with new font sizes
-    body_width, body_height = draw.multiline_textsize(text, font=body_font)
-    author_width, author_height = draw.multiline_textsize(author,
-                                                          font=author_font)
+def add_image_caption(image, caption_text, caption_author):
+    """
+    Add a caption to an image.
 
-    # Randomize starting position for body text
-    body_x = random.randint(0, new_width - body_width)
-    body_y = random.randint(0, new_height - body_height)
+    Args:
+        image: PIL Image object.
+        caption_text: Text to display as the caption.
+        caption_author: Author of the caption.
 
-    # Adjust starting position if body text is outside of image bounds
-    if body_x + body_width > new_width:
-        body_x = new_width - body_width
-    if body_y + body_height > new_height:
-        body_y = new_height - body_height
+    Returns:
+        PIL Image object with the caption added.
+    """
+    draw = ImageDraw.Draw(image)
 
-    # Set starting position for author text
-    author_x = body_x
-    author_y = body_y + body_height + 10
+    if not caption_text or not caption_author:
+        return image
 
-    # Adjust starting position if author text is outside of image bounds
-    if author_y + author_height > new_height:
-        author_y = body_y - author_height - 10
+    font_size = 20
+    font = ImageFont.truetype("Chalkduster.ttf", font_size)
 
-    # Draw body text
-    for line in body_lines:
-        draw.text((body_x, body_y), line, font=body_font,
-                  fill=(255, 255, 255))
-        body_y += body_font.getsize(line)[1]
+    try:
+        # Calculate x axis to display text
+        x_min = (image.size[0] * 8) // 100  # 8%
+        x_max = (image.size[0] * 50) // 100  # 50%
+        range_x = random.randint(x_min, x_max)
 
-    # Draw author text
-    for line in author_lines:
-        draw.text((author_x, author_y), line, font=author_font,
-                  fill=(255, 255, 255))
-        author_y += author_font.getsize(line)[1]
+        # Split text based on font and random position x
+        lines = _text_wrap(caption_text, font, image.size[0] - range_x)
+        line_height = font.getsize('hg')[1]  # Get line spacing
+
+        # Calculate y axis for text display
+        y_min = (image.size[1] * 4) // 100  # 4%
+        y_max = (image.size[1] * 90) // 100  # 90%
+        y_max -= len(lines) * line_height  # adjust based on number of lines
+        range_y = random.randint(y_min, y_max)
+
+        # draw text
+        for line in lines:
+            draw.text((range_x, range_y), line, font=font, align="left")
+            range_y += line_height
+
+        # Calculate x and y axis to display author
+        range_y += 5
+        range_x += 20
+
+        # draw author
+        draw.text((range_x, range_y), f'- {caption_author}',
+                  font=font, align='left')
+
+        return image
+
+    except Exception as e:
+        print(e)
+        return image
 
 
 class MemeEngine:
@@ -77,22 +91,19 @@ class MemeEngine:
         self.output_dir = output_dir
 
     def make_meme(
-        self, img_path: str, text: str, author: str, width: int = 500
+            self, img_path: str, text: str, author: str, width: int = 500
     ) -> Optional[str]:
         """Create a meme given an image path and a quote body and author."""
         try:
-            author = f"Author - {author}"
             img = Image.open(img_path)
             new_width = width
             new_height = int(width * img.height / img.width)
-            img = img.resize((new_width, new_height))
-            draw = ImageDraw.Draw(img)
-            caption_image(author, draw, new_height, new_width, text)
-
+            resized_img = img.resize((new_width, new_height))
+            captioned_img = add_image_caption(resized_img, text, author)
             output_path = os.path.join(
                 self.output_dir, f"meme_{random.randint(0, 1000000)}.jpg"
             )
-            img.save(output_path)
+            captioned_img.save(output_path)
             return output_path
         except Exception as e:
             print(e)
